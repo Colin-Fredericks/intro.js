@@ -957,7 +957,7 @@
 
     </div>
 
-    <div class="eight columns page-content">
+    <div class="seven columns page-content">
         <header class="post-header">
             <h3 class="post-title">API</h3>
         </header>
@@ -1030,6 +1030,40 @@
 <p><strong>Example:</strong></p>
 
 <div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">introJs</span><span class="p">().</span><span class="nx">goToStep</span><span class="p">(</span><span class="mi">2</span><span class="p">).</span><span class="nx">start</span><span class="p">();</span> <span class="c1">//starts introduction from step 2</span>
+</code></pre>
+</div>
+
+<hr />
+
+<p>###introJs.goToStepNumber(step)</p>
+
+<p>Go to specific step of introduction with the concrete step.
+This differs from <code class="highlighter-rouge">goToStep</code> in the way that <code class="highlighter-rouge">data-step</code>
+does not have be continuous to pick the desired element.</p>
+
+<p><strong>Available since</strong>: v2.x</p>
+
+<p><strong>Parameters:</strong></p>
+
+<ul>
+  <li>step : Number</li>
+</ul>
+
+<p><strong>Returns:</strong></p>
+
+<ul>
+  <li>introJs object.</li>
+</ul>
+
+<p><strong>Example:</strong></p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"first"</span> <span class="na">data-step=</span><span class="s">'5'</span><span class="nt">&gt;&lt;/div&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"second"</span> <span class="na">data-step=</span><span class="s">'9'</span><span class="nt">&gt;&lt;/div&gt;</span>
+</code></pre>
+</div>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="c1">//start introduction from step with data-step='9'</span>
+<span class="nx">introJs</span><span class="p">().</span><span class="nx">goToStepNumber</span><span class="p">(</span><span class="mi">9</span><span class="p">).</span><span class="nx">start</span><span class="p">();</span>
 </code></pre>
 </div>
 
@@ -1344,7 +1378,7 @@ The callback function receives the element of the new step as an argument.</p>
         </div>
     </div>
 
-    <div id="contents" class="two columns">
+    <div id="contents" class="three columns">
         <div data-kui-sticky></div>
     </div>
 </div>
@@ -1354,12 +1388,9 @@ The callback function receives the element of the new step as an argument.</p>
 
       <div class="grid">
     <div class="row">
-        <footer class="basic menu top border animated fadeInUp">
+        <footer class="basic menu top border animated fadeInUp" style="border-top: 0;">
             <div class="fluid">
-            <a class="item" href="https://github.com/usablica/intro.js/blob/master/license.md">License</a>
-            <a class="item" href="mailto:support@introjs.com">Contact</a>
-
-            <span class="right header item">&copy; Intro.js - Powered by <a href="http://doc42.io" target="_blank">Doc42</a></span>
+                <span class="right header item">&copy; Intro.js - Powered by <a href="http://doc42.io" target="_blank">Doc42</a></span>
             </div>
         </footer>
     </div>
