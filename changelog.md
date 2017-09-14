@@ -1,5 +1,24 @@
 ## Release History
 
+ * **v2.8.0-alpha.1** - 2017-08-30
+   - Enabling `onbeforechange` to return bool and prevent the next step to display
+   - Updating disable interaction layer after window resize
+   - Fixing disable interaction layer z-index issue
+
+ * **v2.7.0** - 2017-08-17
+   - Added `onbeforeexit` callback
+   - Added `force` parameter to `exit()`
+   - Added Code of Conduct and Contributing guide files
+
+ * **v2.6.0** - 2017-07-29
+   - Per step disable interaction
+   - Adding `scrollTo` option 
+   - Better scrolling method
+   - Fixing pulse animation issue on IE
+   - Adding a new method to show the popup of specific hint
+   - Fixing build script
+   - Some minor bug fixes
+
  * **v2.5.0** - 2017-03-22
    - SVG support
    - Adding new function: `goToStepNumber`, `removeHint`, `removeHits`
