@@ -78,6 +78,8 @@
       positionPrecedence: ["bottom", "top", "right", "left"],
       /* Disable an interaction with element? */
       disableInteraction: false,
+      /* Set how much padding to be used around helper element */
+      helperElementPadding: 10,
       /* Default hint position */
       hintPosition: 'top-middle',
       /* Hint button label */
@@ -239,17 +241,39 @@
           nextStepButton = targetElm.querySelector('.introjs-nextbutton');
 
       self._onKeyDown = function(e) {
-        if (e.keyCode === 27 && self._options.exitOnEsc == true) {
+        /*
+        on keyCode:
+        https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode
+        This feature has been removed from the Web standards.
+        Though some browsers may still support it, it is in
+        the process of being dropped.
+        Instead, you should use KeyboardEvent.code,
+        if it's implemented.
+
+        jQuery's approach is to test for
+          (1) e.which, then
+          (2) e.charCode, then
+          (3) e.keyCode
+        https://github.com/jquery/jquery/blob/a6b0705294d336ae2f63f7276de0da1195495363/src/event.js#L638
+        */
+        var code = (e.code === null) ? e.which : e.code;
+
+        // if code/e.which is null
+        if (code === null) {
+          code = (e.charCode === null) ? e.keyCode : e.charCode;
+        }
+        
+        if (code === 'Escape' || code === 27 && self._options.exitOnEsc == true) {
           //escape key pressed, exit the intro
           //check if exit callback is defined
           _exitIntro.call(self, targetElm);
-        } else if(e.keyCode === 37) {
+        } else if (code === 'ArrowLeft' || code === 37) {
           //left arrow
           _previousStep.call(self);
-        } else if (e.keyCode === 39) {
+        } else if (code === 'ArrowRight' || code === 39) {
           //right arrow
           _nextStep.call(self);
-        } else if (e.keyCode === 13) {
+        } else if (code === 'Enter' || code === 13) {
           //srcElement === ie
           var target = e.target || e.srcElement;
           if (target && target.className.indexOf('introjs-prevbutton') > 0) {
@@ -368,15 +392,17 @@
       ++this._currentStep;
     }
 
+    var nextStep = this._introItems[this._currentStep];
+
     if (typeof (this._introBeforeChangeCallback) !== 'undefined') {
-      var continueStep = this._introBeforeChangeCallback.call(this);
+      var continueStep = this._introBeforeChangeCallback.call(this, nextStep.element);
     }
 
     // if `onbeforechange` returned `false`, stop displaying the element
     if (continueStep === false) {
       --this._currentStep;
       return false;
-    } 
+    }
 
     if ((this._introItems.length) <= this._currentStep) {
       //end of the intro
@@ -388,7 +414,6 @@
       return;
     }
 
-    var nextStep = this._introItems[this._currentStep];
     _showElement.call(this, nextStep);
   }
 
@@ -407,8 +432,10 @@
 
     --this._currentStep;
 
+    var nextStep = this._introItems[this._currentStep];
+
     if (typeof (this._introBeforeChangeCallback) !== 'undefined') {
-      var continueStep = this._introBeforeChangeCallback.call(this);
+      var continueStep = this._introBeforeChangeCallback.call(this, nextStep.element);
     }
 
     // if `onbeforechange` returned `false`, stop displaying the element
@@ -417,7 +444,6 @@
       return false;
     }
 
-    var nextStep = this._introItems[this._currentStep];
     _showElement.call(this, nextStep);
   }
 
@@ -456,7 +482,7 @@
     var continueExit = true;
 
     // calling onbeforeexit callback
-    // 
+    //
     // If this callback return `false`, it would halt the process
     if (this._introBeforeExitCallback != undefined) {
       continueExit = this._introBeforeExitCallback.call(self);
@@ -579,6 +605,7 @@
     }
 
     tooltipLayer.className = ('introjs-tooltip ' + tooltipCssClass).replace(/^\s+|\s+$/g, '');
+    tooltipLayer.setAttribute('role', 'dialog');
 
     currentTooltipPosition = this._introItems[this._currentStep].position;
 
@@ -809,7 +836,7 @@
 
       var currentElement  = this._introItems[this._currentStep],
           elementPosition = _getOffset(currentElement.element),
-          widthHeightPadding = 10;
+          widthHeightPadding = this._options.helperElementPadding;
 
       // If the target element is fixed, the tooltip should be fixed as well.
       // Otherwise, remove a fixed class that may be left over from the previous
@@ -827,8 +854,8 @@
       //set new position to helper layer
       helperLayer.setAttribute('style', 'width: ' + (elementPosition.width  + widthHeightPadding)  + 'px; ' +
                                         'height:' + (elementPosition.height + widthHeightPadding)  + 'px; ' +
-                                        'top:'    + (elementPosition.top    - 5)   + 'px;' +
-                                        'left: '  + (elementPosition.left   - 5)   + 'px;');
+                                        'top:'    + (elementPosition.top    - widthHeightPadding / 2)   + 'px;' +
+                                        'left: '  + (elementPosition.left   - widthHeightPadding / 2)   + 'px;');
 
     }
   }
@@ -949,6 +976,7 @@
             oldReferenceLayer.querySelector('.introjs-bullets li > a[data-stepnumber="' + targetElement.step + '"]').className = 'active';
         }
         oldReferenceLayer.querySelector('.introjs-progress .introjs-progressbar').setAttribute('style', 'width:' + _getProgress.call(self) + '%;');
+        oldReferenceLayer.querySelector('.introjs-progress .introjs-progressbar').setAttribute('aria-valuenow', _getProgress.call(self));
 
         //show the tooltip
         oldtooltipContainer.style.opacity = 1;
@@ -1001,10 +1029,13 @@
       }
 
       var ulContainer = document.createElement('ul');
+      ulContainer.setAttribute('role', 'tablist');
 
       for (var i = 0, stepsLength = this._introItems.length; i < stepsLength; i++) {
         var innerLi    = document.createElement('li');
+          innerLi.setAttribute('role', 'presentation');
         var anchorLink = document.createElement('a');
+          anchorLink.setAttribute('role', 'tab');
 
         anchorLink.onclick = function() {
           self.goToStep(this.getAttribute('data-stepnumber'));
@@ -1029,6 +1060,10 @@
       }
       var progressBar = document.createElement('div');
       progressBar.className = 'introjs-progressbar';
+      progressBar.setAttribute('role', 'progress');
+      progressBar.setAttribute('aria-valuemin', 0);
+      progressBar.setAttribute('aria-valuemax', 100);
+      progressBar.setAttribute('aria-valuenow', _getProgress.call(this));
       progressBar.setAttribute('style', 'width:' + _getProgress.call(this) + '%;');
 
       progressLayer.appendChild(progressBar);
@@ -1199,6 +1234,10 @@
         skipTooltipButton.innerHTML = this._options.skipLabel;
       }
     }
+
+    prevTooltipButton.setAttribute('role', 'button');
+    nextTooltipButton.setAttribute('role', 'button');
+    skipTooltipButton.setAttribute('role', 'button');
 
     //Set focus on "next" button, so that hitting Enter always moves you onto the next step
     if (typeof nextTooltipButton !== "undefined" && nextTooltipButton != null) {
@@ -1854,6 +1893,7 @@
 
     var closeButton = document.createElement('a');
     closeButton.className = 'introjs-button';
+    closeButton.setAttribute('role', 'button');
     closeButton.innerHTML = this._options.hintButtonLabel;
     closeButton.onclick = _hideHint.bind(this, stepId);
 
